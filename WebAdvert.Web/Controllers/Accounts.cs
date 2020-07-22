@@ -119,6 +119,12 @@ namespace WebAdvert.Web.Controllers
 
             return View("Login",model);
         }
+
+        public async Task<IActionResult> Signout()
+        {
+            if (User.Identity.IsAuthenticated) await _signInManager.SignOutAsync().ConfigureAwait(false);
+            return RedirectToAction("Login");
+        }
     }
 }
 
