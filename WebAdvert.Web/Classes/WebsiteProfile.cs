@@ -15,6 +15,9 @@ namespace WebAdvert.Web.Classes
         {
             CreateMap<CreateAdvertModel, CreateAdvertViewModel>().ReverseMap();
             CreateMap<AdvertModel, Advertisement>().ReverseMap();
+            CreateMap<CreateAdvertModel, AdvertModel>();
+            CreateMap<CreateAdvertResponse, AdvertResponse>();
+            CreateMap<ConfirmAdvertRequest, ConfirmAdvertModel>();
             //CreateMap<Advertisement, IndexViewModel>()
             //    .ForMember(
             //        dest => dest.Title, src => src.MapFrom(field => field.Title))

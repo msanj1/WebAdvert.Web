@@ -15,7 +15,7 @@ using Newtonsoft.Json;
 
 namespace AdvertApi.ServiceClients
 {
-    public class AdvertApiClient
+    public class AdvertApiClient : IAdvertApiClient
     {
         private readonly string _baseAddress;
         private readonly HttpClient _client;
@@ -34,12 +34,23 @@ namespace AdvertApi.ServiceClients
             var advertApiModel = _mapper.Map<AdvertModel>(model);
 
             var jsonModel = JsonConvert.SerializeObject(advertApiModel);
-            var response = await _client.PostAsync(new Uri($"{_baseAddress}/create"),
-                new StringContent(jsonModel, Encoding.UTF8, "application/json")).ConfigureAwait(false);
-            var createAdvertResponse = await response.Content.ReadAsAsync<CreateAdvertResponse>().ConfigureAwait(false);
-            var advertResponse = _mapper.Map<AdvertResponse>(createAdvertResponse);
+    
+            try
+            {
+                var response = await _client.PostAsync(new Uri($"{_baseAddress}/create"),
+                    new StringContent(jsonModel, Encoding.UTF8, "application/json")).ConfigureAwait(false);
+                var createAdvertResponse = await response.Content.ReadAsAsync<CreateAdvertResponse>().ConfigureAwait(false);
 
-            return advertResponse;
+                var advertResponse = _mapper.Map<AdvertResponse>(createAdvertResponse);
+
+                return advertResponse;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+
         }
 
         public async Task<bool> ConfirmAsync(ConfirmAdvertRequest model)

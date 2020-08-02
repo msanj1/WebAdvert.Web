@@ -18,11 +18,11 @@ namespace WebAdvert.Web.Controllers
         private readonly IFileUploader _fileUploader;
         private readonly IAdvertApiClient _advertApiClient;
         private readonly IMapper _mapper;
-        public AdvertManagementController(IFileUploader fileUploader)
+        public AdvertManagementController(IFileUploader fileUploader, IAdvertApiClient advertApiClient, IMapper mapper)
         {
             _fileUploader = fileUploader;
-            //_advertApiClient = advertApiClient;
-            //_mapper = mapper;
+            _advertApiClient = advertApiClient;
+            _mapper = mapper;
         }
 
         public IActionResult Create(CreateAdvertViewModel model)
@@ -36,11 +36,11 @@ namespace WebAdvert.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                //var createAdvertModel = _mapper.Map<CreateAdvertModel>(model);
-                //createAdvertModel.UserName = User.Identity.Name;
+                var createAdvertModel = _mapper.Map<CreateAdvertModel>(model);
+                createAdvertModel.UserName = User.Identity.Name;
 
-                //var apiCallResponse = await _advertApiClient.CreateAsync(createAdvertModel).ConfigureAwait(false);
-                var id = "11111";
+                var apiCallResponse = await _advertApiClient.CreateAsync(createAdvertModel).ConfigureAwait(false);
+                var id = apiCallResponse.Id;
 
                 //bool isOkToConfirmAd = true;
                 string filePath = string.Empty;
@@ -59,21 +59,30 @@ namespace WebAdvert.Web.Controllers
                                 throw new Exception(
                                     "Could not upload the image to file repository. Please see the logs for details.");
                         }
+
+                        var confirmModel = new ConfirmAdvertRequest()
+                        {
+                            Id = id,
+                            FilePath = filePath,
+                            Status = AdvertStatus.Active
+                        };
+                        var canConfirm =  await _advertApiClient.ConfirmAsync(confirmModel).ConfigureAwait(false);
+                        if (!canConfirm)
+                        {
+                            throw new Exception($"cannot confirm advert of id = {id}");
+                        }
                     }
                     catch (Exception e)
                     {
-                        //isOkToConfirmAd = false;
-                        //var confirmModel = new ConfirmAdvertRequest()
-                        //{
-                        //    Id = id,
-                        //    FilePath = filePath,
-                        //    Status = AdvertStatus.Pending
-                        //};
-                        //await _advertApiClient.ConfirmAsync(confirmModel).ConfigureAwait(false);
+                        var confirmModel = new ConfirmAdvertRequest()
+                        {
+                            Id = id,
+                            FilePath = filePath,
+                            Status = AdvertStatus.Pending
+                        };
+                        await _advertApiClient.ConfirmAsync(confirmModel).ConfigureAwait(false);
                         Console.WriteLine(e);
                     }
-
-
                 }
 
                 //if (isOkToConfirmAd)

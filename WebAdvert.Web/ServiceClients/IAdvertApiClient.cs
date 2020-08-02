@@ -7,7 +7,7 @@ namespace AdvertApi.ServiceClients
     {
         Task<AdvertResponse> CreateAsync(CreateAdvertModel model);
         Task<bool> ConfirmAsync(ConfirmAdvertRequest model);
-        Task<List<Advertisement>> GetAllAsync();
-        Task<Advertisement> GetAsync(string advertId);
+        //Task<List<Advertisement>> GetAllAsync();
+        //Task<Advertisement> GetAsync(string advertId);
     }
 }
